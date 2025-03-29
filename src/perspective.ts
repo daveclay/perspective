@@ -104,10 +104,6 @@ const secondPerspectivePoint = fromPoint(leftHorizonVanishingPoint)
     .color("#ff8855")
     .toPoint()
 
-// TODO: this will end up being a function given the art line
-function hi(artLine: Line) {
-}
-
 const firstArtLineToSecondPerspectivePoint = new Line(
     "firstArtLineToSecondPerspectivePointLine",
     firstArtLineVerticalReferenceIntersectionPoint,
@@ -128,6 +124,39 @@ const verticalRefPointToFirstArtLineSecondPerspectiveLine = new Line(
     "#ff8855"
 )
 
+function buildSecondPerspectivePointReferenceLines(fromArtLineVerticalRefIntersectionPoint: Point) {
+    const toSecondPerspectivePointLine = new Line("to second perspective point",
+        fromArtLineVerticalRefIntersectionPoint,
+        secondPerspectivePoint,
+        "blue");
+
+    const secondPerspectiveIntersectionPoint = toSecondPerspectivePointLine.intersectionTo(verticalRefPointToFirstArtLineSecondPerspectiveLine)!;
+    const nextArtLineHorizontalRefPoint = new Point(
+        "nextArtLineHorizontalRefPoint",
+        secondPerspectiveIntersectionPoint,
+        "blue"
+    );
+
+    const nextArtLineToVerticalRefPoint = new Line(
+        "nextArtLineToVerticalRefPoint",
+        nextArtLineHorizontalRefPoint,
+        fromPoint(nextArtLineHorizontalRefPoint).offsetX(-400).color("gray").toPoint(),
+        "gray"
+    )
+
+    return {
+        toSecondPerspectivePointLine,
+        nextArtLineHorizontalRefPoint,
+        nextArtLineToVerticalRefPoint,
+    }
+}
+
+const {
+    toSecondPerspectivePointLine,
+    nextArtLineHorizontalRefPoint,
+    nextArtLineToVerticalRefPoint,
+} = buildSecondPerspectivePointReferenceLines(secondArtLineVerticalReferenceIntersectionPoint);
+
 export const constructsToDraw = [
     horizon,
     firstArtMark,
@@ -142,7 +171,11 @@ export const constructsToDraw = [
     secondPerspectivePoint,
     firstArtLineToSecondPerspectivePoint,
     firstArtLineSecondPerspectivePoint,
-    verticalRefPointToFirstArtLineSecondPerspectiveLine
+    verticalRefPointToFirstArtLineSecondPerspectiveLine,
+    toSecondPerspectivePointLine,
+    nextArtLineHorizontalRefPoint,
+    nextArtLineToVerticalRefPoint,
+
 ];
 
 export function draw(ctx: CanvasRenderingContext2D) {
