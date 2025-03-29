@@ -1,4 +1,4 @@
-import {Coords, getLineIntersection, isPointInCircle, isPointOnLine, slope} from "./geometry.ts";
+import {Coords, getLineIntersection, isPointInCircle, isPointOnLine } from "./geometry.ts";
 
 export interface Construct {
     draw(ctx: CanvasRenderingContext2D): void;
@@ -7,8 +7,7 @@ export interface Construct {
 }
 
 export interface Position {
-    getX(): number;
-    getY(): number;
+    getCoords(): Coords;
     moveBy(dx: number, dy: number): void;
 }
 
@@ -16,12 +15,11 @@ export class AbsolutePosition implements Position {
     constructor(private x: number | null,
                 private y: number | null) {}
 
-    getX(): number {
-        return this.x || 0;
-    }
-
-    getY(): number {
-        return this.y || 0;
+    getCoords(): Coords {
+        return {
+            x: this.x || 0,
+            y: this.y || 0
+        }
     }
 
     moveBy(dx: number, dy: number) {
@@ -36,31 +34,9 @@ export class AbsolutePosition implements Position {
 }
 
 export class RelativePosition implements Position {
-    constructor(private getCoords: () => Coords) {
+    constructor(public getCoords: () => Coords) {
     }
 
-    getX() {
-        return this.getCoords().x;
-    }
-
-    getY() {
-        return this.getCoords().y;
-    }
-
-    moveBy(_dx: number, _dy: number) {
-    }
-}
-
-export class ReferencePointPosition implements Position {
-    constructor(private originalPoint: Point) {}
-
-    getX() {
-        return this.originalPoint.getX();
-    }
-
-    getY() {
-        return this.originalPoint.getY();
-    }
 
     moveBy(_dx: number, _dy: number) {
     }
@@ -70,6 +46,7 @@ export class Point implements Construct {
 
     private radius = 10;
     private offsetPosition: Position | null = null;
+    private lastCoords: Coords = { x: -1, y: -1 };
 
     constructor(public name: string,
                 private position: Position,
@@ -78,47 +55,38 @@ export class Point implements Construct {
         this.offsetPosition = offsetPosition || null;
     }
 
-    getX() {
-        return this.position.getX() + this.getOffsetX();
-    }
-
-    getY() {
-        return this.position.getY() + this.getOffsetY();
-    }
-
-    getOffsetX() {
-        return this.offsetPosition ? this.offsetPosition.getX() : 0;
-    }
-
-    getOffsetY() {
-        return this.offsetPosition ? this.offsetPosition.getY() : 0;
-    }
-
     getPosition() {
-        return new ReferencePointPosition(this);
+        return new RelativePosition(() => this.toCoords());
     }
 
     toCoords(): Coords {
+        const positionCoords = this.position.getCoords();
+        const offsetCoords = this.offsetPosition?.getCoords();
+
         return {
-            x: this.getX(),
-            y: this.getY()
+            x: positionCoords.x + (offsetCoords?.x || 0),
+            y: positionCoords.y + (offsetCoords?.y || 0)
         }
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-        ctx.moveTo(this.getX(), this.getY());
+        const coords = this.toCoords();
+        // store em for the isTarget check
+        this.lastCoords = coords;
+
+        ctx.moveTo(coords.x, coords.y);
         ctx.fillStyle = this.color;
-        ctx.arc(this.getX(), this.getY(), this.radius, 0, Math.PI * 2, true);
+        ctx.arc(coords.x, coords.y, this.radius, 0, Math.PI * 2, true);
         ctx.fill();
 
         ctx.font = "10px serif";
         ctx.fillStyle = "black";
-        ctx.fillText(this.name, this.getX() + 20, this.getY() - 20);
+        ctx.fillText(this.name, coords.x + 20, coords.y - 20);
 
     }
 
     isTarget(mouseX: number, mouseY: number): boolean {
-        return isPointInCircle(mouseX, mouseY, this.position.getX(), this.position.getY(), this.radius);
+        return isPointInCircle(mouseX, mouseY, this.lastCoords.x, this.lastCoords.y, this.radius);
     }
 
     moveBy(dx: number, dy: number) {
@@ -174,6 +142,9 @@ export function fromPoint(point: Point) {
 }
 
 export class Line implements Construct {
+    private lastStartPointCoords: Coords = { x: -1, y: -1 };
+    private lastEndPointCoords: Coords = { x: -1, y: -1 };
+
     constructor(
         public name: string,
         private startPoint: Point,
@@ -181,33 +152,26 @@ export class Line implements Construct {
         private color: string) {}
 
     draw(ctx: CanvasRenderingContext2D) {
-        ctx.moveTo(this.startPoint.getX(), this.startPoint.getY());
-        ctx.lineTo(this.endPoint.getX(), this.endPoint.getY());
+        const startPointCoords = this.startPoint.toCoords();
+        const endPointCoords = this.endPoint.toCoords();
+
+        this.lastStartPointCoords = startPointCoords;
+        this.lastEndPointCoords = endPointCoords;
+
+        ctx.moveTo(startPointCoords.x, startPointCoords.y);
+        ctx.lineTo(endPointCoords.x, endPointCoords.y);
         ctx.strokeStyle = this.color;
         ctx.stroke();
-
-        const { rise, run } = slope(
-            this.startPoint.getX(),
-            this.startPoint.getY(),
-            this.endPoint.getX(),
-            this.endPoint.getY()
-        )
-
-        const textX = this.startPoint.getX() + (run / 2);
-        const textY = this.startPoint.getY() + (rise / 2);
-        ctx.font = "10px serif";
-        ctx.fillStyle = "black";
-        ctx.fillText(this.name, textX + 20, textY - 20);
     }
 
     isTarget(mouseX: number, mouseY: number) {
         return isPointOnLine(
             mouseX,
             mouseY,
-            this.startPoint.getX(),
-            this.startPoint.getY(),
-            this.endPoint.getX(),
-            this.endPoint.getY()
+            this.lastStartPointCoords.x,
+            this.lastStartPointCoords.y,
+            this.lastEndPointCoords.x,
+            this.lastEndPointCoords.y
         )
     }
 
