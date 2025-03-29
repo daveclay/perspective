@@ -1,4 +1,4 @@
-import {getLineIntersection, isPointInCircle, isPointOnLine} from "./geometry.ts";
+import {getLineIntersection, isPointInCircle, isPointOnLine, slope} from "./geometry.ts";
 
 export interface Construct {
     draw(ctx: CanvasRenderingContext2D): void;
@@ -170,6 +170,19 @@ export class Line implements Construct {
         ctx.lineTo(this.endPoint.getX(), this.endPoint.getY());
         ctx.strokeStyle = this.color;
         ctx.stroke();
+
+        const { rise, run } = slope(
+            this.startPoint.getX(),
+            this.startPoint.getY(),
+            this.endPoint.getX(),
+            this.endPoint.getY()
+        )
+
+        const textX = this.startPoint.getX() + (run / 2);
+        const textY = this.startPoint.getY() + (rise / 2);
+        ctx.font = "10px serif";
+        ctx.fillStyle = "black";
+        ctx.fillText(this.name, textX + 20, textY - 20);
     }
 
     isTarget(mouseX: number, mouseY: number) {

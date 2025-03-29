@@ -55,8 +55,8 @@ const testPoint = new Point("test", new AbsolutePosition(80, 45), "blue");
  * Build the point and line at which the given line intersects the vertical reference line
  */
 function buildVerticalArtLineIntersection(artLine: Line): {
-    artLineIntersectionPoint: Point,
-    artLineIntersectionLine: Line
+    artLineToVerticalRefIntersectionPoint: Point,
+    artLineToVerticalRefIntersectionLine: Line
 } {
     const artLineIntersectionPoint = new Point(
         `${artLine.name}VerticalReferenceIntersectionPoint`,
@@ -82,31 +82,34 @@ function buildVerticalArtLineIntersection(artLine: Line): {
         "gray");
 
     return {
-        artLineIntersectionPoint,
-        artLineIntersectionLine
+        artLineToVerticalRefIntersectionPoint: artLineIntersectionPoint,
+        artLineToVerticalRefIntersectionLine: artLineIntersectionLine
     }
 }
 
 const {
-    artLineIntersectionPoint: firstArtLineVerticalReferenceIntersectionPoint,
-    artLineIntersectionLine: firstArtLineVerticalReferenceIntersectionLine
+    artLineToVerticalRefIntersectionPoint: firstArtLineVerticalReferenceIntersectionPoint,
+    artLineToVerticalRefIntersectionLine: firstArtLineVerticalReferenceIntersectionLine
 } = buildVerticalArtLineIntersection(firstArtLine);
 
 const {
-    artLineIntersectionPoint: secondArtLineVerticalReferenceIntersectionPoint,
-    artLineIntersectionLine: secondArtLineVerticalReferenceIntersectionLine
+    artLineToVerticalRefIntersectionPoint: secondArtLineVerticalReferenceIntersectionPoint,
+    artLineToVerticalRefIntersectionLine: secondArtLineVerticalReferenceIntersectionLine
 } = buildVerticalArtLineIntersection(secondArtLine);
 
 
-// TODO: this will end up being a function given the art line
 const secondPerspectivePoint = fromPoint(leftHorizonVanishingPoint)
     .named("secondPerspectivePoint")
     .offsetX(1000)
     .color("#ff8855")
     .toPoint()
 
+// TODO: this will end up being a function given the art line
+function hi(artLine: Line) {
+}
+
 const firstArtLineToSecondPerspectivePoint = new Line(
-    "firstArtLineToSecondPerspectivePoint",
+    "firstArtLineToSecondPerspectivePointLine",
     firstArtLineVerticalReferenceIntersectionPoint,
     secondPerspectivePoint,
     "#ff8855"
