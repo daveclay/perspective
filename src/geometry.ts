@@ -1,3 +1,13 @@
+export type Coords = {
+    x: number;
+    y: number;
+}
+
+export type LineCoords = {
+    start: Coords;
+    end: Coords;
+}
+
 export function isPointInCircle(
     mouseX: number,
     mouseY: number,
@@ -37,15 +47,16 @@ export function isPointOnLine(
     return distance(pointX, pointY, closestX, closestY) <= tolerance;
 }
 
-export function getLineIntersection(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    x3: number,
-    y3: number,
-    x4: number,
-    y4: number): { x: number, y: number } | null {
+export function calculateLineIntersection(line1: LineCoords, line2: LineCoords): Coords | null {
+    const x1 = line1.start.x;
+    const y1 = line1.start.y;
+    const x2 = line1.end.x;
+    const y2 = line1.end.y;
+    const x3 = line2.start.x;
+    const y3 = line2.start.y;
+    const x4 = line2.end.x;
+    const y4 = line2.end.y;
+
     const denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 
     if (denominator === 0) {
@@ -60,10 +71,34 @@ export function getLineIntersection(
         isPointOnLine(intersectX, intersectY, x1, y1, x2, y2) &&
         isPointOnLine(intersectX, intersectY, x3, y3, x4, y4)
     ) {
-        return { x: intersectX, y: intersectY };
+        return { x: Math.floor(intersectX), y: Math.floor(intersectY) };
     }
 
     return null; // Intersection is outside the given line segments
+}
+
+function coordKey(coords: Coords): string {
+    return `${coords.x}x${coords.y}`;
+}
+
+function buildCacheKey(line1: LineCoords, line2: LineCoords): string {
+    const l1s = `l1s${coordKey(line1.start)}`;
+    const l1e = `l1e${coordKey(line1.end)}`;
+    const l2s = `l2s${coordKey(line2.start)}`;
+    const l2e = `l2e${coordKey(line2.end)}`;
+
+    return `${l1s}${l1e}${l2s}${l2e}`;
+}
+
+const lineIntersectionCache: Record<string, Coords | null> = {};
+
+export function getLineIntersection(line1: LineCoords, line2: LineCoords): Coords | null {
+    const key = buildCacheKey(line1, line2);
+    if (!lineIntersectionCache[key]) {
+        lineIntersectionCache[key] = calculateLineIntersection(line1, line2);
+    }
+
+    return lineIntersectionCache[key];
 }
 
 export function slope(x1: number, y1: number, x2: number, y2: number) {

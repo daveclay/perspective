@@ -1,4 +1,4 @@
-import {getLineIntersection, isPointInCircle, isPointOnLine, slope} from "./geometry.ts";
+import {Coords, getLineIntersection, isPointInCircle, isPointOnLine, slope} from "./geometry.ts";
 
 export interface Construct {
     draw(ctx: CanvasRenderingContext2D): void;
@@ -36,7 +36,15 @@ export class AbsolutePosition implements Position {
 }
 
 export class RelativePosition implements Position {
-    constructor(public getX: () => number, public getY: () => number) {
+    constructor(private getCoords: () => Coords) {
+    }
+
+    getX() {
+        return this.getCoords().x;
+    }
+
+    getY() {
+        return this.getCoords().y;
     }
 
     moveBy(_dx: number, _dy: number) {
@@ -88,6 +96,13 @@ export class Point implements Construct {
 
     getPosition() {
         return new ReferencePointPosition(this);
+    }
+
+    toCoords(): Coords {
+        return {
+            x: this.getX(),
+            y: this.getY()
+        }
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -204,14 +219,14 @@ export class Line implements Construct {
     intersectionTo(otherLine: Line): Position | null {
         const calculatePosition = () => {
             const coords = getLineIntersection(
-                this.startPoint.getX(),
-                this.startPoint.getY(),
-                this.endPoint.getX(),
-                this.endPoint.getY(),
-                otherLine.startPoint.getX(),
-                otherLine.startPoint.getY(),
-                otherLine.endPoint.getX(),
-                otherLine.endPoint.getY(),
+                {
+                    start: this.startPoint.toCoords(),
+                    end: this.endPoint.toCoords()
+                },
+                {
+                    start: otherLine.startPoint.toCoords(),
+                    end: otherLine.endPoint.toCoords()
+                }
             );
 
             if (coords) {
@@ -224,13 +239,7 @@ export class Line implements Construct {
             }
         }
 
-        return new RelativePosition(
-            () => {
-                return calculatePosition().x;
-            },
-            () => {
-                return calculatePosition().y
-            });
+        return new RelativePosition(calculatePosition);
     }
 }
 
