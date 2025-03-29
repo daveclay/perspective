@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<canvas id="canvas" width="2000" height="2000"></canvas>
+<script type="application/javascript">
+
+    const horizon = {
+        x: 20,
+        y: 200
+    }
+
+    class Point {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+        }
+
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.fillStyle = this.color;
+            ctx.arc(this.x, this.y, 10, 0, Math.PI * 2, true);
+            ctx.fill();
+        }
+    }
+
+    class Line {
+        constructor(startPoint, endPoint, color) {
+            this.startPoint = startPoint;
+            this.endPoint = endPoint;
+            this.color = color;
+        }
+
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.moveTo(this.startPoint.x, this.startPoint.y);
+            ctx.lineTo(this.endPoint.x, this.endPoint.y);
+            ctx.strokeStyle = this.color;
+            ctx.stroke();
+        }
+    }
+
+    const leftHorizonVanishingPoint = new Point(horizon.x, horizon.y, "red");
+    const rightHorizonVanishingPoint = new Point(horizon.x + 1200, horizon.y, "red");
+    const horizonLine = new Line(leftHorizonVanishingPoint, rightHorizonVanishingPoint, "red");
+    const firstArtLine = new Line(leftHorizonVanishingPoint, {
+        x: 3000,
+        y: 2000
+    }, "black")
+    const secondArtLine = new Line(leftHorizonVanishingPoint, {
+        x: 1000,
+        y: 2000
+    }, "black")
+
+    function moveToHorizon(ctx) {
+        ctx.moveTo(horizon.x, horizon.y);
+    }
+
+    const thingsToDraw = [
+        leftHorizonVanishingPoint,
+        rightHorizonVanishingPoint,
+        horizonLine,
+        firstArtLine,
+        secondArtLine
+    ]
+
+    function drawVerticalReferenceLine(ctx) {
+        ctx.beginPath();
+        ctx.strokeStyle = "orange";
+        ctx.moveTo(700, horizon.y);
+        ctx.lineTo(700, 1000);
+        ctx.stroke();
+    }
+
+    function draw(ctx) {
+        for (const thingToDraw of thingsToDraw) {
+            thingToDraw.draw(ctx);
+        }
+    }
+
+    function setup() {
+        const canvas = document.getElementById("canvas");
+        if (canvas.getContext) {
+            const ctx = canvas.getContext("2d");
+            draw(ctx);
+        }
+
+        canvas.addEventListener("mousedown", (e) => {
+        });
+
+        canvas.addEventListener("mouseup", (e) => {
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+        });
+
+        canvas.addEventListener("mouseout", (e) => {
+        });
+    }
+    setup();
+</script>
+</body>
+</html>
