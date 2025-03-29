@@ -12,18 +12,15 @@ export interface Position {
     moveBy(dx: number, dy: number): void;
 }
 
-// TODO: this likely needs to be a method interface that calculates getX and getY rather than
-//  passing the x and y directly. That way everything is dynamically calculated from a few set points
-//  and can be moved.
 export class AbsolutePosition implements Position {
     constructor(private x: number | null,
                 private y: number | null) {}
 
-    getX() {
+    getX(): number {
         return this.x || 0;
     }
 
-    getY() {
+    getY(): number {
         return this.y || 0;
     }
 
@@ -38,7 +35,15 @@ export class AbsolutePosition implements Position {
     }
 }
 
-export class ReferencePointPosition implements  Position {
+export class RelativePosition implements Position {
+    constructor(public getX: () => number, public getY: () => number) {
+    }
+
+    moveBy(_dx: number, _dy: number) {
+    }
+}
+
+export class ReferencePointPosition implements Position {
     constructor(private originalPoint: Point) {}
 
     getX() {
@@ -179,25 +184,35 @@ export class Line implements Construct {
     }
 
     intersectionTo(otherLine: Line): Position | null {
-        const intersectionCoords = getLineIntersection(
-            this.startPoint.getX(),
-            this.startPoint.getY(),
-            this.endPoint.getX(),
-            this.endPoint.getY(),
-            otherLine.startPoint.getX(),
-            otherLine.startPoint.getY(),
-            otherLine.endPoint.getX(),
-            otherLine.endPoint.getY(),
-        );
+        const calculatePosition = () => {
+            const coords = getLineIntersection(
+                this.startPoint.getX(),
+                this.startPoint.getY(),
+                this.endPoint.getX(),
+                this.endPoint.getY(),
+                otherLine.startPoint.getX(),
+                otherLine.startPoint.getY(),
+                otherLine.endPoint.getX(),
+                otherLine.endPoint.getY(),
+            );
 
-        if (!intersectionCoords) {
-            return null;
+            if (coords) {
+                return coords;
+            } else {
+                return {
+                    x: -1,
+                    y: -1
+                }
+            }
         }
 
-        // TODO: this needs to be a reference to the calculation for when the lines move, the getX and getY
-        // recalculate. As in:
-        // return new Position( () => calculateX(), () => calculateY );
-        return new AbsolutePosition(intersectionCoords.x, intersectionCoords.y);
+        return new RelativePosition(
+            () => {
+                return calculatePosition().x;
+            },
+            () => {
+                return calculatePosition().y
+            });
     }
 }
 
