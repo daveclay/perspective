@@ -1,4 +1,4 @@
-import {AbsolutePosition, fromPoint, Group, Line, Point} from "./constructs.ts";
+import {AbsolutePosition, fromPoint, Group, Line, Point, RelativePosition} from "./constructs.ts";
 import interaction from "./interaction.ts";
 
 const leftHorizonVanishingPoint = new Point("leftHorizonVanishingPoint", new AbsolutePosition(20, 100), "red");
@@ -16,7 +16,7 @@ const horizon = new Group([
 ])
 
 const firstArtLineStartPont = fromPoint(leftHorizonVanishingPoint).named("firstArtLineStartPont").color("black").toPoint();
-const firstArtLineEndPoint = new Point("firstArtLineEndPoint", new AbsolutePosition(1097, 848), "black");
+const firstArtLineEndPoint = new Point("firstArtLineEndPoint", new AbsolutePosition(658, 851), "black");
 const firstArtLine = new Line("firstArtLine", firstArtLineStartPont, firstArtLineEndPoint, "black")
 
 const firstArtMark = new Group([
@@ -26,7 +26,7 @@ const firstArtMark = new Group([
 ])
 
 const secondArtLineStartPont = fromPoint(leftHorizonVanishingPoint).named("secondArtLineStartPont").color("black").toPoint();
-const secondArtLineEndPont = new Point("secondArtLineEndPont", new AbsolutePosition(658, 851), "black");
+const secondArtLineEndPont = new Point("secondArtLineEndPont", new AbsolutePosition(1097, 848), "black");
 const secondArtLine = new Line("secondArtLine", secondArtLineStartPont, secondArtLineEndPont, "black")
 
 const secondArtMark = new Group([
@@ -88,14 +88,28 @@ function buildVerticalArtLineIntersection(artLine: Line): {
 }
 
 const {
-    artLineIntersectionPoint: firstArtLineIntersectionPoint,
-    artLineIntersectionLine: firstArtLineIntersectionLine
+    artLineIntersectionPoint: firstArtLineVerticalReferenceIntersectionPoint,
+    artLineIntersectionLine: firstArtLineVerticalReferenceIntersectionLine
 } = buildVerticalArtLineIntersection(firstArtLine);
 
 const {
-    artLineIntersectionPoint: secondArtLineIntersectionPoint,
-    artLineIntersectionLine: secondArtLineIntersectionLine
+    artLineIntersectionPoint: secondArtLineVerticalReferenceIntersectionPoint,
+    artLineIntersectionLine: secondArtLineVerticalReferenceIntersectionLine
 } = buildVerticalArtLineIntersection(secondArtLine);
+
+
+const secondPerspectivePoint = fromPoint(leftHorizonVanishingPoint)
+    .named("secondPerspectivePoint")
+    .offsetX(1000)
+    .color("#ff8855")
+    .toPoint()
+
+const firstArtLineToSecondPerspectivePoint = new Line(
+    "firstArtLineToSecondPerspectivePoint",
+    firstArtLineVerticalReferenceIntersectionPoint,
+    secondPerspectivePoint,
+    "#ff8855"
+)
 
 export const constructsToDraw = [
     horizon,
@@ -103,10 +117,12 @@ export const constructsToDraw = [
     secondArtMark,
     verticalReferenceLine,
     testPoint,
-    firstArtLineIntersectionPoint,
-    firstArtLineIntersectionLine,
-    secondArtLineIntersectionPoint,
-    secondArtLineIntersectionLine
+    firstArtLineVerticalReferenceIntersectionPoint,
+    firstArtLineVerticalReferenceIntersectionLine,
+    secondArtLineVerticalReferenceIntersectionPoint,
+    secondArtLineVerticalReferenceIntersectionLine,
+    secondPerspectivePoint,
+    firstArtLineToSecondPerspectivePoint
 ];
 
 export function draw(ctx: CanvasRenderingContext2D) {
