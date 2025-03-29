@@ -415,7 +415,6 @@
             let mouseDistanceY = mouseY - startMouseY;
             startMouseX = mouseX;
             startMouseY = mouseY;
-            console.log(mouseDistanceX, mouseDistanceY, startMouseX, startMouseY);
             if (selectedThing) {
                 selectedThing.moveBy(mouseDistanceX, mouseDistanceY);
             }
