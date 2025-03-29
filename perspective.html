@@ -2,25 +2,26 @@
 <html lang="en">
 <body>
 <canvas id="canvas" width="2000" height="2000"></canvas>
-<script type="application/javascript">
+<script>
 
-    const horizon = {
-        x: 20,
-        y: 200
+    class Coordinate {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     class Point {
-        constructor(x, y, color) {
-            this.x = x;
-            this.y = y;
+        constructor(coordinate, color) {
+            this.coordinate = coordinate;
             this.color = color;
         }
 
         draw(ctx) {
             ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
+            ctx.moveTo(this.coordinate.x, this.coordinate.y);
             ctx.fillStyle = this.color;
-            ctx.arc(this.x, this.y, 10, 0, Math.PI * 2, true);
+            ctx.arc(this.coordinate.x, this.coordinate.y, 10, 0, Math.PI * 2, true);
             ctx.fill();
         }
     }
@@ -34,35 +35,40 @@
 
         draw(ctx) {
             ctx.beginPath();
-            ctx.moveTo(this.startPoint.x, this.startPoint.y);
-            ctx.lineTo(this.endPoint.x, this.endPoint.y);
+            ctx.moveTo(this.startPoint.coordinate.x, this.startPoint.coordinate.y);
+            ctx.lineTo(this.endPoint.coordinate.x, this.endPoint.coordinate.y);
             ctx.strokeStyle = this.color;
             ctx.stroke();
         }
     }
 
-    const leftHorizonVanishingPoint = new Point(horizon.x, horizon.y, "red");
-    const rightHorizonVanishingPoint = new Point(horizon.x + 1200, horizon.y, "red");
+    const leftHorizonVanishingPoint = new Point(new Coordinate(20, 200), "red");
+    const rightHorizonVanishingPoint = new Point(new Coordinate(1200, 200), "red");
     const horizonLine = new Line(leftHorizonVanishingPoint, rightHorizonVanishingPoint, "red");
-    const firstArtLine = new Line(leftHorizonVanishingPoint, {
+
+    const firstArtLineStartPont = leftHorizonVanishingPoint;
+    const firstArtLineEndPoint = new Point({
         x: 3000,
         y: 2000
-    }, "black")
-    const secondArtLine = new Line(leftHorizonVanishingPoint, {
+    });
+    const firstArtLine = new Line(firstArtLineStartPont, firstArtLineEndPoint, "black")
+
+    const secondArtLineStartPont = leftHorizonVanishingPoint;
+    const secondArtLineEndPont = new Point({
         x: 1000,
         y: 2000
-    }, "black")
+    })
 
-    function moveToHorizon(ctx) {
-        ctx.moveTo(horizon.x, horizon.y);
-    }
+    const secondArtLine = new Line(secondArtLineStartPont, secondArtLineEndPont, "black")
+
+    const verticalReferencePoint = new Point(700, 2000);
 
     const thingsToDraw = [
         leftHorizonVanishingPoint,
         rightHorizonVanishingPoint,
         horizonLine,
         firstArtLine,
-        secondArtLine
+        secondArtLine,
     ]
 
     function drawVerticalReferenceLine(ctx) {
