@@ -128,34 +128,42 @@ function buildSecondPerspectivePointReferenceLines(fromArtLineVerticalRefInterse
     const toSecondPerspectivePointLine = new Line("to second perspective point",
         fromArtLineVerticalRefIntersectionPoint,
         secondPerspectivePoint,
-        "blue");
+        "#ff8855");
 
     const secondPerspectiveIntersectionPoint = toSecondPerspectivePointLine.intersectionTo(verticalRefPointToFirstArtLineSecondPerspectiveLine)!;
     const nextArtLineHorizontalRefPoint = new Point(
         "nextArtLineHorizontalRefPoint",
         secondPerspectiveIntersectionPoint,
-        "blue"
+        "#ff8855"
     );
 
-    const nextArtLineToVerticalRefPoint = new Line(
+    const nextArtLineToVerticalRefPointLine = new Line(
         "nextArtLineToVerticalRefPoint",
         nextArtLineHorizontalRefPoint,
         fromPoint(nextArtLineHorizontalRefPoint).offsetX(-400).color("gray").toPoint(),
         "gray"
     )
 
+    const verticalReferenceIntersectionPoint = new Point(
+        "",
+        nextArtLineToVerticalRefPointLine.intersectionTo(verticalReferenceLine)!,
+        "gray");
+
+    const nextArtLine = new Line(
+        "",
+        leftHorizonVanishingPoint,
+        verticalReferenceIntersectionPoint,
+        "black"
+    );
+
     return {
         toSecondPerspectivePointLine,
         nextArtLineHorizontalRefPoint,
-        nextArtLineToVerticalRefPoint,
+        nextArtLineToVerticalRefPointLine,
+        verticalReferenceIntersectionPoint,
+        nextArtLine
     }
 }
-
-const {
-    toSecondPerspectivePointLine,
-    nextArtLineHorizontalRefPoint,
-    nextArtLineToVerticalRefPoint,
-} = buildSecondPerspectivePointReferenceLines(secondArtLineVerticalReferenceIntersectionPoint);
 
 export const constructsToDraw = [
     horizon,
@@ -172,11 +180,28 @@ export const constructsToDraw = [
     firstArtLineToSecondPerspectivePoint,
     firstArtLineSecondPerspectivePoint,
     verticalRefPointToFirstArtLineSecondPerspectiveLine,
-    toSecondPerspectivePointLine,
-    nextArtLineHorizontalRefPoint,
-    nextArtLineToVerticalRefPoint,
-
 ];
+
+let nextPoint: Point = secondArtLineVerticalReferenceIntersectionPoint;
+for (let i = 0; i < 4; i++) {
+    const {
+        toSecondPerspectivePointLine,
+        nextArtLineHorizontalRefPoint,
+        nextArtLineToVerticalRefPointLine,
+        verticalReferenceIntersectionPoint,
+        nextArtLine
+    } = buildSecondPerspectivePointReferenceLines(nextPoint);
+
+    constructsToDraw.push(
+        toSecondPerspectivePointLine,
+        nextArtLineHorizontalRefPoint,
+        nextArtLineToVerticalRefPointLine,
+        verticalReferenceIntersectionPoint,
+        nextArtLine
+    );
+
+    nextPoint = verticalReferenceIntersectionPoint;
+}
 
 export function draw(ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, 3000, 3000);
