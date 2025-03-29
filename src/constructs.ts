@@ -56,10 +56,10 @@ export class Point implements Construct {
     }
 
     getPosition() {
-        return new RelativePosition(() => this.toCoords());
+        return new RelativePosition(() => this.getCoords());
     }
 
-    toCoords(): Coords {
+    getCoords(): Coords {
         const positionCoords = this.position.getCoords();
         const offsetCoords = this.offsetPosition?.getCoords();
 
@@ -70,7 +70,7 @@ export class Point implements Construct {
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-        const coords = this.toCoords();
+        const coords = this.getCoords();
         // store em for the isTarget check
         this.lastCoords = coords;
 
@@ -152,8 +152,8 @@ export class Line implements Construct {
         private color: string) {}
 
     draw(ctx: CanvasRenderingContext2D) {
-        const startPointCoords = this.startPoint.toCoords();
-        const endPointCoords = this.endPoint.toCoords();
+        const startPointCoords = this.startPoint.getCoords();
+        const endPointCoords = this.endPoint.getCoords();
 
         this.lastStartPointCoords = startPointCoords;
         this.lastEndPointCoords = endPointCoords;
@@ -184,12 +184,12 @@ export class Line implements Construct {
         const calculatePosition = () => {
             const coords = getLineIntersection(
                 {
-                    start: this.startPoint.toCoords(),
-                    end: this.endPoint.toCoords()
+                    start: this.startPoint.getCoords(),
+                    end: this.endPoint.getCoords()
                 },
                 {
-                    start: otherLine.startPoint.toCoords(),
-                    end: otherLine.endPoint.toCoords()
+                    start: otherLine.startPoint.getCoords(),
+                    end: otherLine.endPoint.getCoords()
                 }
             );
 
