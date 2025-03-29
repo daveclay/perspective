@@ -98,6 +98,7 @@ const {
 } = buildVerticalArtLineIntersection(secondArtLine);
 
 
+// TODO: this will end up being a function given the art line
 const secondPerspectivePoint = fromPoint(leftHorizonVanishingPoint)
     .named("secondPerspectivePoint")
     .offsetX(1000)
@@ -111,6 +112,13 @@ const firstArtLineToSecondPerspectivePoint = new Line(
     "#ff8855"
 )
 
+const firstArtLineSecondPerspectivePoint = new Point(
+    "firstArtLineSecondPerspectivePoint",
+    // TODO: this is glitching
+    firstArtLineToSecondPerspectivePoint.intersectionTo(secondArtLineVerticalReferenceIntersectionLine)!,
+    "#ff8855"
+);
+
 export const constructsToDraw = [
     horizon,
     firstArtMark,
@@ -122,7 +130,8 @@ export const constructsToDraw = [
     secondArtLineVerticalReferenceIntersectionPoint,
     secondArtLineVerticalReferenceIntersectionLine,
     secondPerspectivePoint,
-    firstArtLineToSecondPerspectivePoint
+    firstArtLineToSecondPerspectivePoint,
+    firstArtLineSecondPerspectivePoint
 ];
 
 export function draw(ctx: CanvasRenderingContext2D) {
