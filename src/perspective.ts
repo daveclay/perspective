@@ -16,8 +16,8 @@ const horizon = new Group([
 ])
 
 const firstArtLineStartPont = fromPoint(leftHorizonVanishingPoint).named("firstArtLineStartPont").color("black").toPoint();
-const firstArtLineEndPoint = new Point("firstArtLineEndPoint", new AbsolutePosition(658, 851), "black");
-const firstArtLine = new Line("firstArtLine", firstArtLineStartPont, firstArtLineEndPoint, "black")
+const firstArtLineEndPoint = new Point("firstArtLineEndPoint", new AbsolutePosition(658, 851), "green");
+const firstArtLine = new Line("firstArtLine", firstArtLineStartPont, firstArtLineEndPoint, "green")
 
 const firstArtMark = new Group([
     firstArtLineStartPont,
@@ -26,8 +26,8 @@ const firstArtMark = new Group([
 ])
 
 const secondArtLineStartPont = fromPoint(leftHorizonVanishingPoint).named("secondArtLineStartPont").color("black").toPoint();
-const secondArtLineEndPont = new Point("secondArtLineEndPont", new AbsolutePosition(1097, 848), "black");
-const secondArtLine = new Line("secondArtLine", secondArtLineStartPont, secondArtLineEndPont, "black")
+const secondArtLineEndPont = new Point("secondArtLineEndPont", new AbsolutePosition(1097, 848), "green");
+const secondArtLine = new Line("secondArtLine", secondArtLineStartPont, secondArtLineEndPont, "green")
 
 const secondArtMark = new Group([
     secondArtLineStartPont,
@@ -64,13 +64,13 @@ function buildVerticalArtLineIntersection(artLine: Line): {
         "gray");
 
     const artLineIntersectionLineStartPoint = fromPoint(artLineIntersectionPoint)
-        .offsetX(-400)
+        .offsetX(-800)
         .named(`${artLine.name}VerticalReferenceIntersectionLineStartPoint`)
         .color("gray")
         .toPoint()
 
     const artLineIntersectionLineEndPoint = fromPoint(artLineIntersectionPoint)
-        .offsetX(400)
+        .offsetX(800)
         .named(`${artLine.name}VerticalReferenceIntersectionLineEndPoint`)
         .color("gray")
         .toPoint()
@@ -183,7 +183,7 @@ export const constructsToDraw = [
 ];
 
 let nextPoint: Point = secondArtLineVerticalReferenceIntersectionPoint;
-for (let i = 0; i < 4; i++) {
+for (let i = 0; i < 8; i++) {
     const {
         toSecondPerspectivePointLine,
         nextArtLineHorizontalRefPoint,
