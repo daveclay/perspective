@@ -1,4 +1,4 @@
-import {AbsolutePosition, fromPoint, Group, Line, Point, RelativePosition} from "./constructs.ts";
+import {AbsolutePosition, fromPoint, Group, Line, Point } from "./constructs.ts";
 import interaction from "./interaction.ts";
 
 const leftHorizonVanishingPoint = new Point("leftHorizonVanishingPoint", new AbsolutePosition(20, 100), "red");
@@ -114,15 +114,23 @@ const firstArtLineToSecondPerspectivePoint = new Line(
 
 const firstArtLineSecondPerspectivePoint = new Point(
     "firstArtLineSecondPerspectivePoint",
-    // TODO: this is glitching
+    // TODO: this is glitching for some reason, and the intersection seems to be wonky
     firstArtLineToSecondPerspectivePoint.intersectionTo(secondArtLineVerticalReferenceIntersectionLine)!,
     "#ff8855"
 );
+
+const verticalRefPointToFirstArtLineSecondPerspectiveLine = new Line(
+    "verticalRefPointToFirstArtLineSecondPerspectiveLine",
+    verticalReferencePoint,
+    firstArtLineSecondPerspectivePoint,
+    "#ff8855"
+)
 
 export const constructsToDraw = [
     horizon,
     firstArtMark,
     secondArtMark,
+    verticalReferencePoint,
     verticalReferenceLine,
     testPoint,
     firstArtLineVerticalReferenceIntersectionPoint,
@@ -131,7 +139,8 @@ export const constructsToDraw = [
     secondArtLineVerticalReferenceIntersectionLine,
     secondPerspectivePoint,
     firstArtLineToSecondPerspectivePoint,
-    firstArtLineSecondPerspectivePoint
+    firstArtLineSecondPerspectivePoint,
+    verticalRefPointToFirstArtLineSecondPerspectiveLine
 ];
 
 export function draw(ctx: CanvasRenderingContext2D) {

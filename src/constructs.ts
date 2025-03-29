@@ -95,6 +95,11 @@ export class Point implements Construct {
         ctx.fillStyle = this.color;
         ctx.arc(this.getX(), this.getY(), this.radius, 0, Math.PI * 2, true);
         ctx.fill();
+
+        ctx.font = "10px serif";
+        ctx.fillStyle = "black";
+        ctx.fillText(this.name, this.getX() + 20, this.getY() - 20);
+
     }
 
     isTarget(mouseX: number, mouseY: number): boolean {
