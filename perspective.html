@@ -45,16 +45,21 @@
         }
 
         getX() {
-            return this.x;
+            return this.x || 0;
         }
 
         getY() {
-            return this.y;
+            return this.y || 0;
         }
 
         moveBy(dx, dy) {
-            this.x += dx;
-            this.y += dy;
+            if (this.x) {
+                this.x += dx;
+            }
+
+            if (this.y) {
+                this.y += dy;
+            }
         }
     }
 
@@ -127,8 +132,6 @@
     class ReferencePointBuilder {
         constructor(originalPoint) {
             this._originalPoint = originalPoint;
-            this._offsetX = 0;
-            this._offsetY = 0;
         }
 
         named(name) {
