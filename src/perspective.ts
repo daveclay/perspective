@@ -51,30 +51,46 @@ const verticalReferenceLine = new Line("verticalReferenceLine", verticalReferenc
 
 const testPoint = new Point("test", new AbsolutePosition(80, 45), "blue");
 
-const firstArtLineIntersectionPoint = new Point(
-    "firstArtLineIntersectionPoint",
-    firstArtLine.intersectionTo(verticalReferenceLine) || new AbsolutePosition(0, 0),
-    "gray");
+/**
+ * Build the point and line at which the given line intersects the vertical reference line
+ */
+function buildVerticalArtLineIntersection(artLine: Line): {
+    artLineIntersectionPoint: Point,
+    artLineIntersectionLine: Line
+} {
+    const artLineIntersectionPoint = new Point(
+        `${artLine.name}VerticalReferenceIntersectionPoint`,
+        firstArtLine.intersectionTo(verticalReferenceLine) || new AbsolutePosition(0, 0),
+        "gray");
 
-const firstArtLineIntersectionLineStartPoint = fromPoint(firstArtLineIntersectionPoint)
-    .offsetX(-400)
-    .named("firstArtLineIntersectionLineStartPoint")
-    .color("gray")
-    .toPoint()
+    const artLineIntersectionLineStartPoint = fromPoint(artLineIntersectionPoint)
+        .offsetX(-400)
+        .named(`${artLine.name}VerticalReferenceIntersectionLineStartPoint`)
+        .color("gray")
+        .toPoint()
 
-const secondArtLineIntersectionLineStartPoint = fromPoint(firstArtLineIntersectionPoint)
-    .offsetX(400)
-    .named("secondArtLineIntersectionLineStartPoint")
-    .color("gray")
-    .toPoint()
+    const artLineIntersectionLineEndPoint = fromPoint(artLineIntersectionPoint)
+        .offsetX(400)
+        .named(`${artLine.name}VerticalReferenceIntersectionLineEndPoint`)
+        .color("gray")
+        .toPoint()
 
-const firstArtLineIntersectionLine = new Line(
-    "firstArtLineIntersectionLine",
-    firstArtLineIntersectionLineStartPoint,
-    secondArtLineIntersectionLineStartPoint,
-    "gray");
+    const artLineIntersectionLine = new Line(
+        `${artLine.name}VerticalReferenceIntersectionLine`,
+        artLineIntersectionLineStartPoint,
+        artLineIntersectionLineEndPoint,
+        "gray");
 
+    return {
+        artLineIntersectionPoint,
+        artLineIntersectionLine
+    }
+}
 
+const {
+    artLineIntersectionPoint: firstArtLineIntersectionPoint,
+    artLineIntersectionLine: firstArtLineIntersectionLine
+} = buildVerticalArtLineIntersection(firstArtLine);
 
 export const constructsToDraw = [
     horizon,
