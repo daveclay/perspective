@@ -60,7 +60,7 @@ function buildVerticalArtLineIntersection(artLine: Line): {
 } {
     const artLineIntersectionPoint = new Point(
         `${artLine.name}VerticalReferenceIntersectionPoint`,
-        firstArtLine.intersectionTo(verticalReferenceLine) || new AbsolutePosition(0, 0),
+        artLine.intersectionTo(verticalReferenceLine) || new AbsolutePosition(0, 0),
         "gray");
 
     const artLineIntersectionLineStartPoint = fromPoint(artLineIntersectionPoint)
@@ -92,6 +92,11 @@ const {
     artLineIntersectionLine: firstArtLineIntersectionLine
 } = buildVerticalArtLineIntersection(firstArtLine);
 
+const {
+    artLineIntersectionPoint: secondArtLineIntersectionPoint,
+    artLineIntersectionLine: secondArtLineIntersectionLine
+} = buildVerticalArtLineIntersection(secondArtLine);
+
 export const constructsToDraw = [
     horizon,
     firstArtMark,
@@ -99,7 +104,9 @@ export const constructsToDraw = [
     verticalReferenceLine,
     testPoint,
     firstArtLineIntersectionPoint,
-    firstArtLineIntersectionLine
+    firstArtLineIntersectionLine,
+    secondArtLineIntersectionPoint,
+    secondArtLineIntersectionLine
 ];
 
 export function draw(ctx: CanvasRenderingContext2D) {
