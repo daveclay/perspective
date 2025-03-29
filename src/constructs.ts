@@ -1,13 +1,16 @@
 import {Coords, getLineIntersection, isPointInCircle, isPointOnLine } from "./geometry.ts";
 
+export interface Calculable {
+    getCoords(tick: number): Coords;
+}
+
 export interface Construct {
-    draw(ctx: CanvasRenderingContext2D): void;
+    draw(ctx: CanvasRenderingContext2D, tick: number): void;
     moveBy(dx: number, dy: number): void;
     isTarget(mouseX: number, mouseY: number): boolean;
 }
 
-export interface Position {
-    getCoords(): Coords;
+export interface Position extends Calculable {
     moveBy(dx: number, dy: number): void;
 }
 
@@ -33,20 +36,38 @@ export class AbsolutePosition implements Position {
     }
 }
 
+class CoordCache {
+    private lastTick: number = -1;
+    private lastCoords: Coords = { x: -1, y: -1 };
+
+    withCaching(tick: number, calculateCoords: (tick: number) => Coords): Coords {
+        if (this.lastTick != tick) {
+            this.lastCoords = calculateCoords(tick);
+            this.lastTick = tick;
+        }
+
+        return this.lastCoords;
+    }
+}
+
 export class RelativePosition implements Position {
-    constructor(public getCoords: () => Coords) {
+    private coordCache = new CoordCache();
+    constructor(private calculateCoords: (tick: number) => Coords) {
     }
 
+    public getCoords(tick: number): Coords {
+        return this.coordCache.withCaching(tick, (tick) => this.calculateCoords(tick));
+    }
 
     moveBy(_dx: number, _dy: number) {
     }
 }
 
 export class Point implements Construct {
-
     private radius = 10;
     private offsetPosition: Position | null = null;
     private lastCoords: Coords = { x: -1, y: -1 };
+    private coordCache = new CoordCache();
 
     constructor(public name: string,
                 private position: Position,
@@ -56,12 +77,12 @@ export class Point implements Construct {
     }
 
     getPosition() {
-        return new RelativePosition(() => this.getCoords());
+        return new RelativePosition((tick: number) => this.calculateCoords(tick));
     }
 
-    getCoords(): Coords {
-        const positionCoords = this.position.getCoords();
-        const offsetCoords = this.offsetPosition?.getCoords();
+    calculateCoords(tick: number) {
+        const positionCoords = this.position.getCoords(tick);
+        const offsetCoords = this.offsetPosition?.getCoords(tick);
 
         return {
             x: positionCoords.x + (offsetCoords?.x || 0),
@@ -69,8 +90,14 @@ export class Point implements Construct {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
-        const coords = this.getCoords();
+    getCoords(tick: number): Coords {
+        return this.coordCache.withCaching(tick, () => {
+            return this.calculateCoords(tick);
+        });
+    }
+
+    draw(ctx: CanvasRenderingContext2D, tick: number) {
+        const coords = this.getCoords(tick);
         // store em for the isTarget check
         this.lastCoords = coords;
 
@@ -151,9 +178,9 @@ export class Line implements Construct {
         private endPoint: Point,
         private color: string) {}
 
-    draw(ctx: CanvasRenderingContext2D) {
-        const startPointCoords = this.startPoint.getCoords();
-        const endPointCoords = this.endPoint.getCoords();
+    draw(ctx: CanvasRenderingContext2D, tick: number) {
+        const startPointCoords = this.startPoint.getCoords(tick);
+        const endPointCoords = this.endPoint.getCoords(tick);
 
         this.lastStartPointCoords = startPointCoords;
         this.lastEndPointCoords = endPointCoords;
@@ -181,15 +208,15 @@ export class Line implements Construct {
     }
 
     intersectionTo(otherLine: Line): Position | null {
-        const calculatePosition = () => {
+        const calculatePosition = (tick: number) => {
             const coords = getLineIntersection(
                 {
-                    start: this.startPoint.getCoords(),
-                    end: this.endPoint.getCoords()
+                    start: this.startPoint.getCoords(tick),
+                    end: this.endPoint.getCoords(tick)
                 },
                 {
-                    start: otherLine.startPoint.getCoords(),
-                    end: otherLine.endPoint.getCoords()
+                    start: otherLine.startPoint.getCoords(tick),
+                    end: otherLine.endPoint.getCoords(tick)
                 }
             );
 
@@ -210,9 +237,9 @@ export class Line implements Construct {
 export class Group implements Construct {
     constructor(private constructs: Construct[]) {}
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasRenderingContext2D, tick: number) {
         for (const construct of this.constructs) {
-            construct.draw(ctx);
+            construct.draw(ctx, tick);
         }
     }
 

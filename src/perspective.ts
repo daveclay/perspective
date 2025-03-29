@@ -183,7 +183,7 @@ export const constructsToDraw = [
 ];
 
 let nextPoint: Point = secondArtLineVerticalReferenceIntersectionPoint;
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 20; i++) {
     const {
         toSecondPerspectivePointLine,
         nextArtLineHorizontalRefPoint,
@@ -206,9 +206,10 @@ for (let i = 0; i < 10; i++) {
 export function draw(ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, 3000, 3000);
 
+    const tick = Math.random();
     for (const thingToDraw of constructsToDraw) {
         ctx.beginPath();
-        thingToDraw.draw(ctx);
+        thingToDraw.draw(ctx, tick);
     }
 
     ctx.font = "12px serif";
