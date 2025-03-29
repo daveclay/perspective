@@ -1,4 +1,4 @@
-export function isMouseInCircle(
+export function isPointInCircle(
     mouseX: number,
     mouseY: number,
     circleX: number,
@@ -11,9 +11,9 @@ export function isMouseInCircle(
     return distance <= radius;
 }
 
-export function isMouseOnLine(
-    mouseX: number,
-    mouseY: number,
+export function isPointOnLine(
+    pointX: number,
+    pointY: number,
     x1: number,
     y1: number,
     x2: number,
@@ -26,15 +26,15 @@ export function isMouseOnLine(
 
     // Compute the projection of (mouseX, mouseY) onto the line segment
     const lengthSquared = distance(x1, y1, x2, y2) ** 2;
-    if (lengthSquared === 0) return distance(mouseX, mouseY, x1, y1) <= tolerance;
+    if (lengthSquared === 0) return distance(pointX, pointY, x1, y1) <= tolerance;
 
-    let t = ((mouseX - x1) * (x2 - x1) + (mouseY - y1) * (y2 - y1)) / lengthSquared;
+    let t = ((pointX - x1) * (x2 - x1) + (pointY - y1) * (y2 - y1)) / lengthSquared;
     t = Math.max(0, Math.min(1, t));
 
     const closestX = x1 + t * (x2 - x1);
     const closestY = y1 + t * (y2 - y1);
 
-    return distance(mouseX, mouseY, closestX, closestY) <= tolerance;
+    return distance(pointX, pointY, closestX, closestY) <= tolerance;
 }
 
 export function getLineIntersection(
@@ -57,10 +57,8 @@ export function getLineIntersection(
 
     // Check if the intersection point is within both line segments
     if (
-        intersectX >= Math.min(x1, x2) && intersectX <= Math.max(x1, x2) &&
-        intersectY >= Math.min(y1, y2) && intersectY <= Math.max(y1, y2) &&
-        intersectX >= Math.min(x3, x4) && intersectX <= Math.max(x3, x4) &&
-        intersectY >= Math.min(y3, y4) && intersectY <= Math.max(y3, y4)
+        isPointOnLine(intersectX, intersectY, x1, y1, x2, y2) &&
+        isPointOnLine(intersectX, intersectY, x3, y3, x4, y4)
     ) {
         return { x: intersectX, y: intersectY };
     }

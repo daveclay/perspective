@@ -1,4 +1,4 @@
-import {getLineIntersection, isMouseInCircle, isMouseOnLine} from "./geometry.ts";
+import {getLineIntersection, isPointInCircle, isPointOnLine} from "./geometry.ts";
 
 export interface Construct {
     draw(ctx: CanvasRenderingContext2D): void;
@@ -103,7 +103,7 @@ export class Point implements Construct {
     }
 
     isTarget(mouseX: number, mouseY: number): boolean {
-        return isMouseInCircle(mouseX, mouseY, this.position.getX(), this.position.getY(), this.radius);
+        return isPointInCircle(mouseX, mouseY, this.position.getX(), this.position.getY(), this.radius);
     }
 
     moveBy(dx: number, dy: number) {
@@ -173,7 +173,7 @@ export class Line implements Construct {
     }
 
     isTarget(mouseX: number, mouseY: number) {
-        return isMouseOnLine(
+        return isPointOnLine(
             mouseX,
             mouseY,
             this.startPoint.getX(),
