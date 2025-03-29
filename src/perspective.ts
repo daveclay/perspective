@@ -114,7 +114,6 @@ const firstArtLineToSecondPerspectivePoint = new Line(
 
 const firstArtLineSecondPerspectivePoint = new Point(
     "firstArtLineSecondPerspectivePoint",
-    // TODO: this is glitching for some reason, and the intersection seems to be wonky
     firstArtLineToSecondPerspectivePoint.intersectionTo(secondArtLineVerticalReferenceIntersectionLine)!,
     "#ff8855"
 );
