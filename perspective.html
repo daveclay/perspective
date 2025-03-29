@@ -117,7 +117,6 @@
 
         moveBy(dx, dy) {
             if (this.offsetPosition) {
-                // Not entirely sure we _shuld_ move this if the original point is moving, doesn't this "lock"?
                 this.offsetPosition.moveBy(dx, dy);
             } else {
                 this.position.moveBy(dx, dy);
@@ -236,7 +235,7 @@
     ])
 
     const firstArtLineStartPont = fromPoint(leftHorizonVanishingPoint).named("firstArtLineStartPont").color("black").toPoint();
-    const firstArtLineEndPoint = new Point("firstArtLineEndPoint", new Position(3000, 2000), "black");
+    const firstArtLineEndPoint = new Point("firstArtLineEndPoint", new Position(1097, 848), "black");
     const firstArtLine = new Line("firstArtLine", firstArtLineStartPont, firstArtLineEndPoint, "black")
 
     const firstArtMark = new Group([
@@ -246,7 +245,7 @@
     ])
 
     const secondArtLineStartPont = fromPoint(leftHorizonVanishingPoint).named("secondArtLineStartPont").color("black").toPoint();
-    const secondArtLineEndPont = new Point("secondArtLineEndPont", new Position(800, 1000), "black");
+    const secondArtLineEndPont = new Point("secondArtLineEndPont", new Position(658, 851), "black");
     const secondArtLine = new Line("secondArtLine", secondArtLineStartPont, secondArtLineEndPont, "black")
 
     const secondArtMark = new Group([
@@ -262,7 +261,7 @@
         .toPoint();
 
     const verticalReferenceEndPoint = fromPoint(verticalReferencePoint)
-        .offsetY(2000)
+        .offsetY(600)
         .named("verticalReferenceEndPoint")
         .color("orange")
         .toPoint();
