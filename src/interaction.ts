@@ -1,5 +1,5 @@
 import {Construct} from "./constructs.ts";
-import {constructsToDraw} from "./drawing.ts";
+import {constructsToDraw} from "./perspective.ts";
 
 export class InteractionData {
     public selectedConstruct: Construct | null = null;

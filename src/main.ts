@@ -1,7 +1,7 @@
 import './style.css'
 
 import interaction from "./interaction.ts";
-import {draw} from "./drawing.ts";
+import {draw} from "./perspective.ts";
 
 function setup() {
     const canvas = document.getElementById("canvas")! as HTMLCanvasElement;
