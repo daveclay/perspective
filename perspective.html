@@ -2,106 +2,309 @@
 <html lang="en">
 <body>
 <canvas id="canvas" width="2000" height="2000"></canvas>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    canvas {
+        border: 1px solid red;
+    }
+</style>
 <script>
+    function isMouseInCircle(mouseX, mouseY, circleX, circleY, radius) {
+        // Calculate the distance between the mouse and the circle center
+        const distance = Math.sqrt((mouseX - circleX) ** 2 + (mouseY - circleY) ** 2);
 
-    class Coordinate {
+        // Return true if the distance is less than or equal to the radius
+        return distance <= radius;
+    }
+
+    function isMouseOnLine(mouseX, mouseY, x1, y1, x2, y2, tolerance = 5) {
+        function distance(x1, y1, x2, y2) {
+            return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+
+        // Compute the projection of (mouseX, mouseY) onto the line segment
+        const lengthSquared = distance(x1, y1, x2, y2) ** 2;
+        if (lengthSquared === 0) return distance(mouseX, mouseY, x1, y1) <= tolerance;
+
+        let t = ((mouseX - x1) * (x2 - x1) + (mouseY - y1) * (y2 - y1)) / lengthSquared;
+        t = Math.max(0, Math.min(1, t));
+
+        const closestX = x1 + t * (x2 - x1);
+        const closestY = y1 + t * (y2 - y1);
+
+        return distance(mouseX, mouseY, closestX, closestY) <= tolerance;
+    }
+
+    class Position {
         constructor(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        getX() {
+            return this.x;
+        }
+
+        getY() {
+            return this.y;
+        }
+
+        moveTo(x, y) {
             this.x = x;
             this.y = y;
         }
     }
 
-    class Point {
-        constructor(coordinate, color) {
-            this.coordinate = coordinate;
-            this.color = color;
+    class ReferencePosition {
+        constructor(position, distanceX, distanceY) {
+            this.position = position;
+            this.distanceX = distanceX;
+            this.distanceY = distanceY;
         }
 
-        draw(ctx) {
-            ctx.beginPath();
-            ctx.moveTo(this.coordinate.x, this.coordinate.y);
-            ctx.fillStyle = this.color;
-            ctx.arc(this.coordinate.x, this.coordinate.y, 10, 0, Math.PI * 2, true);
-            ctx.fill();
+        getX() {
+            return this.position.getX() + this.distanceX;
+        }
+
+        getY() {
+            return this.position.getY() + this.distanceY;
+        }
+
+        moveTo(x, y) {
+            this.position.moveTo(x - this.distanceX, y - this.distanceY);
         }
     }
 
+    class Point {
+        constructor(name, position, color) {
+            this.name = name;
+            this.position = position;
+            this.color = color;
+            this.radius = 10;
+        }
+
+        draw(ctx) {
+            ctx.moveTo(this.position.getX(), this.position.getY());
+            ctx.fillStyle = this.color;
+            ctx.arc(this.position.getX(), this.position.getY(), this.radius, 0, Math.PI * 2, true);
+            ctx.fill();
+        }
+
+        isTarget(mouseX, mouseY) {
+            return isMouseInCircle(mouseX, mouseY, this.position.getX(), this.position.getY(), this.radius);
+        }
+
+        moveWithMouse(mouseX, mouseY) {
+            this.position.moveTo(mouseX, mouseY);
+        }
+    }
+
+    class ReferencePointBuilder {
+        constructor(originalPoint) {
+            this.originalPoint = originalPoint;
+        }
+
+        named(name) {
+            this.name = name;
+            return this;
+        }
+
+        color(color) {
+            this.color = color;
+            return this;
+        }
+
+        moveX(distance) {
+            this.distanceX = distance;
+            return this;
+        }
+
+        moveY(distance) {
+            this.distanceY = distance;
+            return this;
+        }
+
+        toPoint() {
+            const refPosition = new ReferencePosition(
+                this.originalPoint.position,
+                this.distanceX || 0,
+                this.distanceY || 0
+            );
+            return new Point(this.name, refPosition, this.color);
+        }
+    }
+
+    function fromPoint(point) {
+        return new ReferencePointBuilder(point);
+    }
+
     class Line {
-        constructor(startPoint, endPoint, color) {
+        constructor(name, startPoint, endPoint, color) {
+            this.name = name;
             this.startPoint = startPoint;
             this.endPoint = endPoint;
             this.color = color;
         }
 
         draw(ctx) {
-            ctx.beginPath();
-            ctx.moveTo(this.startPoint.coordinate.x, this.startPoint.coordinate.y);
-            ctx.lineTo(this.endPoint.coordinate.x, this.endPoint.coordinate.y);
+            ctx.moveTo(this.startPoint.position.getX(), this.startPoint.position.getY());
+            ctx.lineTo(this.endPoint.position.getX(), this.endPoint.position.getY());
             ctx.strokeStyle = this.color;
             ctx.stroke();
         }
-    }
 
-    const leftHorizonVanishingPoint = new Point(new Coordinate(20, 200), "red");
-    const rightHorizonVanishingPoint = new Point(new Coordinate(1200, 200), "red");
-    const horizonLine = new Line(leftHorizonVanishingPoint, rightHorizonVanishingPoint, "red");
+        isTarget(mouseX, mouseY) {
+            return isMouseOnLine(
+                mouseX,
+                mouseY,
+                this.startPoint.position.getX(),
+                this.startPoint.position.getY(),
+                this.endPoint.position.getX(),
+                this.endPoint.position.getY()
+            )
+        }
 
-    const firstArtLineStartPont = leftHorizonVanishingPoint;
-    const firstArtLineEndPoint = new Point({
-        x: 3000,
-        y: 2000
-    });
-    const firstArtLine = new Line(firstArtLineStartPont, firstArtLineEndPoint, "black")
-
-    const secondArtLineStartPont = leftHorizonVanishingPoint;
-    const secondArtLineEndPont = new Point({
-        x: 1000,
-        y: 2000
-    })
-
-    const secondArtLine = new Line(secondArtLineStartPont, secondArtLineEndPont, "black")
-
-    const verticalReferencePoint = new Point(700, 2000);
-
-    const thingsToDraw = [
-        leftHorizonVanishingPoint,
-        rightHorizonVanishingPoint,
-        horizonLine,
-        firstArtLine,
-        secondArtLine,
-    ]
-
-    function drawVerticalReferenceLine(ctx) {
-        ctx.beginPath();
-        ctx.strokeStyle = "orange";
-        ctx.moveTo(700, horizon.y);
-        ctx.lineTo(700, 1000);
-        ctx.stroke();
-    }
-
-    function draw(ctx) {
-        for (const thingToDraw of thingsToDraw) {
-            thingToDraw.draw(ctx);
+        moveWithMouse(mouseX, mouseY) {
         }
     }
+
+    class Group {
+        constructor(things) {
+            this.things = things;
+        }
+
+        draw(ctx) {
+            for (const thing of this.things) {
+                thing.draw(ctx);
+            }
+        }
+
+        isTarget(mouseX, mouseY) {
+            for (const thing of this.things) {
+                if (thing.isTarget(mouseX, mouseY)) {
+                    return true;
+                }
+            }
+        }
+
+        moveWithMouse(mouseX, mouseY) {
+            // remember we're moving relative.
+        }
+    }
+
+    const leftHorizonVanishingPoint = new Point("leftHorizonVanishingPoint", new Position(20, 200), "red");
+    const rightHorizonVanishingPoint = new Point("rightHorizonVanishingPoint", new Position(1200, 200), "red");
+    const horizonLine = new Line("horizonLine", leftHorizonVanishingPoint, rightHorizonVanishingPoint, "red");
+
+    const horizon = new Group([
+        leftHorizonVanishingPoint,
+        rightHorizonVanishingPoint,
+        horizonLine
+    ])
+
+    const firstArtLineStartPont = fromPoint(leftHorizonVanishingPoint).named("firstArtLineStartPont").color("black").toPoint();
+    const firstArtLineEndPoint = new Point("firstArtLineEndPoint", new Position(3000, 2000), "black");
+    const firstArtLine = new Line("firstArtLine", firstArtLineStartPont, firstArtLineEndPoint, "black")
+
+    const firstArtMark = new Group([
+        firstArtLineStartPont,
+        firstArtLineEndPoint,
+        firstArtLine
+    ])
+
+    const secondArtLineStartPont = fromPoint(leftHorizonVanishingPoint).named("secondArtLineStartPont").color("black").toPoint();
+    const secondArtLineEndPont = new Point("secondArtLineEndPont", new Position(800, 1000), "black");
+    const secondArtLine = new Line("secondArtLine", secondArtLineStartPont, secondArtLineEndPont, "black")
+
+    const secondArtMark = new Group([
+        secondArtLineStartPont,
+        secondArtLineEndPont,
+        secondArtLine
+    ])
+
+    const verticalReferencePoint = fromPoint(leftHorizonVanishingPoint)
+        .moveX(600)
+        .named("verticalReferencePoint")
+        .color("orange")
+        .toPoint();
+
+    const verticalReferenceEndPoint = fromPoint(verticalReferencePoint)
+        .moveY(2000)
+        .named("verticalReferenceEndPoint")
+        .color("orange")
+        .toPoint();
+
+    const verticalReferenceLine = new Line("verticalReferenceLine", verticalReferencePoint, verticalReferenceEndPoint, "orange");
+
+    const thingsToDraw = [
+        horizon,
+        firstArtMark,
+        secondArtMark,
+        verticalReferenceLine
+    ];
+
+    function draw(ctx) {
+        ctx.clearRect(0, 0, 3000, 3000);
+
+        for (const thingToDraw of thingsToDraw) {
+            ctx.beginPath();
+            thingToDraw.draw(ctx);
+        }
+
+        ctx.font = "12px serif";
+        ctx.fillStyle = "black";
+        ctx.fillText(`${mouseX}, ${mouseY}`, 10, 50);
+
+        window.requestAnimationFrame(() => {
+            draw(ctx);
+        });
+    }
+
+    function findTargetThing(mouseX, mouseY) {
+        for (const thing of thingsToDraw) {
+            if (thing.isTarget(mouseX, mouseY)) {
+                return thing;
+            }
+        }
+    }
+
+    let selectedThing;
+    let mouseX = 0;
+    let mouseY = 0;
 
     function setup() {
         const canvas = document.getElementById("canvas");
-        if (canvas.getContext) {
-            const ctx = canvas.getContext("2d");
-            draw(ctx);
+        if (!canvas.getContext) {
+            return;
         }
 
         canvas.addEventListener("mousedown", (e) => {
+            selectedThing = findTargetThing(e.pageX, e.pageY);
+            console.log(selectedThing);
         });
 
         canvas.addEventListener("mouseup", (e) => {
+            selectedThing = undefined;
         });
 
         canvas.addEventListener("mousemove", (e) => {
+            mouseX = e.pageX;
+            mouseY = e.pageY;
+            if (selectedThing) {
+                selectedThing.moveWithMouse(mouseX, mouseY);
+            }
         });
 
         canvas.addEventListener("mouseout", (e) => {
+            selectedThing = undefined;
+        });
+
+        const ctx = canvas.getContext("2d");
+        window.requestAnimationFrame(() => {
+            draw(ctx);
         });
     }
     setup();
